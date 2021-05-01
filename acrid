@@ -192,8 +192,6 @@ recognized_commands = \
                 "help_descr" : "shows metadata for the specified PDF file",
             },
 
-        # more TBD
-
     } # recognized_commands
 
 #+
