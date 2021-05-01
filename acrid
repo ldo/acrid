@@ -141,7 +141,7 @@ def cmd_setinfo(args, opts) :
     pdf.save(args[1])
 #end cmd_setinfo
 
-def cmd_show(args, opts) :
+def cmd_showinfo(args, opts) :
     pdf = Pdf.open(args[0])
     sys.stdout.write(repr(pdf.docinfo))
     sys.stdout.write("\n")
@@ -149,7 +149,7 @@ def cmd_show(args, opts) :
         sys.stdout.write(pdf.root.Metadata.read_bytes().decode())
         sys.stdout.write("\n")
     #end if
-#end cmd_show
+#end cmd_showinfo
 
 recognized_commands = \
     {
@@ -183,11 +183,11 @@ recognized_commands = \
                     "changes metadata on the input PDF file and saves the result as the output",
             },
 
-        "show" :
+        "showinfo" :
             {
                 "args" : 1,
                 "opts" : (),
-                "action" : cmd_show,
+                "action" : cmd_showinfo,
                 "help_usage" : "«pdf file»",
                 "help_descr" : "shows metadata for the specified PDF file",
             },
