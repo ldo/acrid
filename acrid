@@ -8,7 +8,8 @@ import sys
 import os
 import fnmatch
 import getopt
-import pikepdf
+from pikepdf import \
+    Pdf
 
 #+
 # Definitions of valid commands.
@@ -71,7 +72,7 @@ def cmd_help(args, opts) :
 #end cmd_help
 
 def cmd_show(args, opts) :
-    pdf = pikepdf.open(args[0])
+    pdf = Pdf.open(args[0])
     sys.stdout.write(repr(pdf.docinfo))
     sys.stdout.write("\n")
     if hasattr(pdf.root, "Metadata") :
@@ -81,7 +82,7 @@ def cmd_show(args, opts) :
 #end cmd_show
 
 recognized_commands = \
-  {
+    {
 # key is command name, value is dictionary with following fields:
 #     args -- nr required positional args, or tuple of min and max nr required positional args
 #     opts -- tuple of long option names. If a name ends in an equal sign, then it takes a value.
@@ -91,27 +92,27 @@ recognized_commands = \
 #     help_descr -- explanatory text shown when giving help for the command.
 #     action -- the function to invoke to actually perform the command.
 
-    "help" :
-      {
-        "args" : (0, 1),
-        "opts" : (),
-        "action" : cmd_help,
-        "help_usage" : "[cmd]",
-        "help_descr" : "gives help about the specified command",
-      },
+        "help" :
+            {
+                "args" : (0, 1),
+                "opts" : (),
+                "action" : cmd_help,
+                "help_usage" : "[cmd]",
+                "help_descr" : "gives help about the specified command",
+            },
 
-    "show" :
-      {
-        "args" : 1,
-        "opts" : (),
-        "action" : cmd_show,
-        "help_usage" : "«pdf file»",
-        "help_descr" : "shows metadata for the specified PDF file",
-      },
+        "show" :
+            {
+                "args" : 1,
+                "opts" : (),
+                "action" : cmd_show,
+                "help_usage" : "«pdf file»",
+                "help_descr" : "shows metadata for the specified PDF file",
+            },
 
-    # more TBD
+        # more TBD
 
-  } # recognized_commands
+    } # recognized_commands
 
 #+
 # Mainline
