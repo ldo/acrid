@@ -12,6 +12,23 @@ from pikepdf import \
     Pdf
 
 #+
+# Useful stuff
+#-
+
+valid_info_keys = \
+    [ # cf page 550 of PDF 32000-1:2008
+        "Author",
+        "CreationDate",
+        "Creator",
+        "Keywords",
+        "ModDate",
+        "Producer",
+        "Subject",
+        "Title",
+        "Trapped",
+    ]
+
+#+
 # Definitions of valid commands.
 #
 # Each command function is passed two arguments: the first is
@@ -71,6 +88,55 @@ def cmd_help(args, opts) :
     #end if
 #end cmd_help
 
+def cmd_setinfo(args, opts) :
+    to_set = opts.get("set", [])
+    to_del = opts.get("del", [])
+    if len(to_set) + len(to_del) == 0 :
+        raise getopt.GetoptError("nothing to do")
+    #end if
+    to_set = list(s.split("=", 1) for s in to_set)
+    to_change = {}
+    duplicated = set()
+    for keyword, value in to_set :
+        if keyword in to_change :
+            duplicated.add(keyword)
+        #end if
+        to_change[keyword] = value
+    #end for
+    if len(duplicated) != 0 :
+        raise getopt.GetoptError("duplicated keywords for --set: %s" % ", ".join(sorted(duplicated)))
+    #end if
+    duplicated = set(to_change.keys()) & set(to_del)
+    if len(duplicated) != 0 :
+        raise getopt.GetoptError \
+          (
+            "duplicated keywords for both --set and --del: %s" % ", ".join(sorted(duplicated))
+          )
+    #end if
+    for keyword in to_del :
+        to_change[keyword] = None
+    #end for
+    if "allow-nonstd" not in opts :
+        invalid = set(k for k in to_change if k not in set(valid_info_keys))
+        if len(invalid) != 0 :
+            raise getopt.GetoptError("invalid keywords: %s" % ", ".join(sorted(invalid)))
+        #end if
+    #end if
+    pdf = Pdf.open(args[0])
+    docinfo = pdf.docinfo
+    for keyword, value in to_change.items() :
+        keyword = "/" + keyword
+        if value != None :
+            docinfo[keyword] = value
+        else :
+            if keyword in docinfo :
+                del docinfo[keyword]
+            #end if
+        #end if
+    #end for
+    pdf.save(args[1])
+#end cmd_setinfo
+
 def cmd_show(args, opts) :
     pdf = Pdf.open(args[0])
     sys.stdout.write(repr(pdf.docinfo))
@@ -99,6 +165,18 @@ recognized_commands = \
                 "action" : cmd_help,
                 "help_usage" : "[cmd]",
                 "help_descr" : "gives help about the specified command",
+            },
+
+        "setinfo" :
+            {
+                "args" : 2,
+                "opts" : ("allow-nonstd", "del=", "set="),
+                "multivalued" : ("del", "set"),
+                "action" : cmd_setinfo,
+                "help_usage" :
+                    "[--del=«keyword» ...] [--set=«keyword»=«value»] «in pdf file» «out pdf file»",
+                "help_descr" :
+                    "changes metadata on the input PDF file and saves the result as the output",
             },
 
         "show" :
