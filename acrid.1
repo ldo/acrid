@@ -32,20 +32,40 @@ displays help for the specified command. If
 is omitted, shows a list of valid commands.
 
 .TP
-\fBsetinfo\fR [\fB--delxmp\fR] [\fB--del=\fIkeyword ...\fR] [\fB--set=\fIkeyword\fR=\fIvalue\fR ...] \
-\fI in-pdf-file out-pdf-file\fR
+\fBsetinfo\fR [\fIoptions\fR...] \fIin-pdf-file out-pdf-file\fR
 Reads
 .IR in-pdf-file ,
 makes changes to the metadata as specified by the options, and saves
 the changed file as
 .IR out-pdf-file .
-Valid options are:
+Valid
+.I options
+are:
 
 .RS 4
 
 .TP
+.B --allow-nonstd
+Without this option, the only
+.IR keyword s
+that can be specified to the
+.B --set
+and
+.B --del
+options are
+.BR Author ", " CreationDate ", " Creator ", " Keywords ", " ModDate ", " Producer ", " Subject ", " Title
+and
+.BR Trapped .
+Specifying this option allows you to include your own nonstandard keywords as well.
+
+.TP
 .B --delxmp
-Deletes any XMP metadata, if this is present.
+Deletes any XMP metadata, if this is present. The presence of XMP data is
+supposed to override the
+.B Info
+dictionary and be a replacement for it, so if you are making changes to the
+.BR Info ,
+getting rid of the XMP data is probably a good idea.
 
 .TP
 .BI --del= keyword
@@ -53,6 +73,9 @@ Deletes the
 .B Info
 entry with the specified
 .IR keyword .
+May be specified more than once to delete multiple
+.IR keyword s
+in a single operation.
 
 .TP
 .BI --set= keyword = value
@@ -65,10 +88,62 @@ to the specified
 Adds such an entry with that
 .I keyword
 if there isn’t one already, or replaces an existing
-entry if there is one.
+entry if there is one. May be specified more than once to set/add multiple
+.IR keyword s
+in a single operation.
 .RE
 
 .TP
 \fBshowinfo\fR \fIin-pdf-file\fR
 Shows the current info from the specified PDF file, including a dump of the
 XMP data, if present.
+
+.SH NOTES
+
+Requires the
+.UR https://github.com/pikepdf/pikepdf
+pikepdf
+.UE
+toolkit.
+
+.SH BUGS
+
+According to the latest PDF specs, XMP metadata is supposed to be a replacement
+for the
+.B Info
+dictionary, which is now deprecated.
+
+.SH EXAMPLES
+
+.RS 4
+acrid showinfo fred.pdf
+.RE
+
+Displays any
+.B Info
+and XMP data for the file
+.BR fred.pdf .
+
+.RS 4
+.nf
+acrid setinfo --delxmp --set=Author=\(dqFred Dagg\(dq \e
+.RS 4
+--set=Creator=\(dqNot LibreOffice\(dq --del=Producer \e
+fred.pdf dagg.pdf
+.RE
+.fi
+.RE
+
+Copies
+.B fred.pdf
+to
+.BR dagg.pdf ,
+getting rid of any XMP data, setting the
+.B Author
+and
+.B Creator
+fields of the
+.B Info
+dictionary and deleting any
+.B Producer
+entry (if present) in the process.
