@@ -2,6 +2,12 @@
 #+
 # Simple tool to set/show metadata in a PDF file, using the
 # pikepdf toolkit.
+#
+# Invocation details are documented in the acrid(1) man page,
+# included with this script.
+#
+# Copyright 2021 by Lawrence D'Oliveiro <ldo@geek-central.gen.nz>.
+# Licensed under CC-BY-SA <http://creativecommons.org/licenses/by-sa/4.0/>.
 #-
 
 import sys
