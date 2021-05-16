@@ -1,0 +1,74 @@
+.TH "ACRID" "1" "2021-05-16" "Geek Central" "PDF Hacks"
+
+.SH NAME
+acrid - examine/manipulate metadata in a PDF file.
+
+.SH SYNOPSIS
+.B acrid
+.RI [ options "...] " cmd
+.IR file ...
+
+.SH DESCRIPTION
+.B acrid
+is a command-line tool for examining and changing the contents of the
+.B Info
+dictionary in a PDF file. Entries can be added or removed, or
+their associated values changed. There is also an option to delete
+the XMP data.
+
+.SH SUBCOMMANDS
+The operation to perform depends on
+.IR cmd ,
+as do the valid associated
+.IR options ,
+as follows:
+
+.TP
+\fBhelp\fR [\fIcmd\fR]
+with
+.IR cmd ,
+displays help for the specified command. If
+.I cmd
+is omitted, shows a list of valid commands.
+
+.TP
+\fBsetinfo\fR [\fB--delxmp\fR] [\fB--del=\fIkeyword ...\fR] [\fB--set=\fIkeyword\fR=\fIvalue\fR ...] \
+\fI in-pdf-file out-pdf-file\fR
+Reads
+.IR in-pdf-file ,
+makes changes to the metadata as specified by the options, and saves
+the changed file as
+.IR out-pdf-file .
+Valid options are:
+
+.RS 4
+
+.TP
+.B --delxmp
+Deletes any XMP metadata, if this is present.
+
+.TP
+.BI --del= keyword
+Deletes the
+.B Info
+entry with the specified
+.IR keyword .
+
+.TP
+.BI --set= keyword = value
+Sets the
+.B Info
+entry with the specified
+.I keyword
+to the specified
+.IR value .
+Adds such an entry with that
+.I keyword
+if there isn’t one already, or replaces an existing
+entry if there is one.
+.RE
+
+.TP
+\fBshowinfo\fR \fIin-pdf-file\fR
+Shows the current info from the specified PDF file, including a dump of the
+XMP data, if present.
