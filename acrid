@@ -178,7 +178,8 @@ recognized_commands = \
                 "multivalued" : ("del", "set"),
                 "action" : cmd_setinfo,
                 "help_usage" :
-                    "[--del=«keyword» ...] [--set=«keyword»=«value»] «in pdf file» «out pdf file»",
+                    "[--delxmp] [--del=«keyword» ...] [--set=«keyword»=«value»]"
+                    " «in pdf file» «out pdf file»",
                 "help_descr" :
                     "changes metadata on the input PDF file and saves the result as the output",
             },
