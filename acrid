@@ -178,7 +178,7 @@ recognized_commands = \
                 "multivalued" : ("del", "set"),
                 "action" : cmd_setinfo,
                 "help_usage" :
-                    "[--delxmp] [--del=«keyword» ...] [--set=«keyword»=«value»]"
+                    "[--allow-nonstd] [--delxmp] [--del=«keyword» ...] [--set=«keyword»=«value» ...]"
                     " «in pdf file» «out pdf file»",
                 "help_descr" :
                     "changes metadata on the input PDF file and saves the result as the output",
