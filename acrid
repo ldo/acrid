@@ -98,8 +98,12 @@ def cmd_setinfo(args, opts) :
     to_set = opts.get("set", [])
     to_del = opts.get("del", [])
     delxmp = "delxmp" in opts
-    if len(to_set) + len(to_del) == 0 and not delxmp :
+    delall = "delall" in opts
+    if len(to_set) + len(to_del) == 0 and not delall and not delxmp :
         raise getopt.GetoptError("nothing to do")
+    #end if
+    if delall and len(to_del) != 0 :
+        raise getopt.GetoptError("--delall leaves nothing for --del to do")
     #end if
     to_set = list(s.split("=", 1) for s in to_set)
     to_change = {}
@@ -131,6 +135,11 @@ def cmd_setinfo(args, opts) :
     #end if
     pdf = Pdf.open(args[0])
     docinfo = pdf.docinfo
+    if delall :
+        for keyword in list(docinfo.keys()) :
+            del docinfo[keyword]
+        #end for
+    #end if
     for keyword, value in to_change.items() :
         keyword = "/" + keyword
         if value != None :
@@ -180,11 +189,12 @@ recognized_commands = \
         "setinfo" :
             {
                 "args" : 2,
-                "opts" : ("allow-nonstd", "del=", "delxmp", "set="),
+                "opts" : ("allow-nonstd", "delall", "del=", "delxmp", "set="),
                 "multivalued" : ("del", "set"),
                 "action" : cmd_setinfo,
                 "help_usage" :
-                    "[--allow-nonstd] [--delxmp] [--del=«keyword» ...] [--set=«keyword»=«value» ...]"
+                    "[--allow-nonstd] [--delxmp] [--delall] [--del=«keyword» ...]"
+                    " [--set=«keyword»=«value» ...]"
                     " «in pdf file» «out pdf file»",
                 "help_descr" :
                     "changes metadata on the input PDF file and saves the result as the output",

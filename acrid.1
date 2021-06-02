@@ -1,4 +1,4 @@
-.TH "ACRID" "1" "2021-05-16" "Geek Central" "PDF Hacks"
+.TH "ACRID" "1" "2021-06-02" "Geek Central" "PDF Hacks"
 
 .SH NAME
 acrid - examine/manipulate metadata in a PDF file.
@@ -57,6 +57,16 @@ options are
 and
 .BR Trapped .
 Specifying this option allows you to include your own nonstandard keywords as well.
+
+.TP
+.B --delall
+Deletes all keys in the
+.B Info
+dictionary. If specified together with
+.BR --set ,
+then the deletions are done first, then the
+.B --set
+options are performed to put back the specified keys.
 
 .TP
 .B --delxmp
