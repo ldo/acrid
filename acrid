@@ -12,7 +12,16 @@
 
 import sys
 import os
+import time
+import calendar
+import datetime
+try :
+    import zoneinfo
+except ImportError :
+    zoneinfo = None
+#end try
 import fnmatch
+import re
 import getopt
 from pikepdf import \
     Pdf
@@ -166,6 +175,73 @@ def cmd_showinfo(args, opts) :
     #end if
 #end cmd_showinfo
 
+def cmd_getinfo(args, opts) :
+    pdf = Pdf.open(args[0])
+    keyword = args[1]
+    info = pdf.docinfo
+    if keyword in info or "default" not in opts :
+        sys.stdout.write(str(info[keyword]))
+    else :
+        sys.stdout.write(opts["default"])
+    #end if
+    sys.stdout.write("\n")
+#end cmd_getinfo
+
+def cmd_format_date(args, opts) :
+    timestamp = int(args[0])
+    use_utc = "utc" in opts
+    use_timezone = opts.get("timezone")
+    if use_timezone != None and zoneinfo == None :
+        getopt.GetoptError("--timezone option not available on this Python version")
+    #end if
+    if use_timezone != None and use_utc :
+        getopt.GetoptError("can’t specify both --timezone and --utc")
+    #end if
+    if use_timezone != None :
+        the_time = datetime.datetime.fromtimestamp \
+          (
+            timestamp,
+            tz = zoneinfo.ZoneInfo(use_timezone)
+          )
+        pieces = the_time.timetuple()
+        tzdelta = round(the_time.utcoffset().total_seconds())
+    else :
+        pieces = (time.localtime, time.gmtime)[use_utc](timestamp)
+        tzdelta = (pieces.tm_gmtoff, "Z")[use_utc]
+    #end if
+    if isinstance(tzdelta, int) :
+        assert tzdelta % 60 == 0, "TZ delta is not a whole number of minutes"
+        sign = ("+", "-")[tzdelta < 0]
+        tzdelta = abs(tzdelta)
+        tzdelta = "%s%02d'%02d'" % (sign, tzdelta // 3600, tzdelta // 60 % 60)
+    #end if
+    format = "D:%Y%m%d%H%M%S"
+    sys.stdout.write("%s%s\n" % (time.strftime(format, pieces), tzdelta))
+#end cmd_format_date
+
+def cmd_parse_date(args, opts) :
+    datetime = args[0]
+    pieces = re.fullmatch \
+      (
+        r"D\:(\d{4})(\d{2})(\d{2})(\d{2})(\d{2})(\d{2})([+\-]\d+\D\d+\D)?",
+        datetime
+      )
+    if pieces == None :
+        raise ValueError("invalid PDF date/time %s" % repr(datetime))
+    #end if
+    pieces = pieces.groups()
+    tzdelta = pieces[6]
+    if tzdelta != None :
+        tzdelta = re.fullmatch(r"(.)(\d+)\D(\d+)\D", tzdelta).groups()
+        tzdelta = (int(tzdelta[1]) * 60 + int(tzdelta[2])) * 60 * (1, -1)[tzdelta[0] == "-"]
+    else :
+        tzdelta = 0
+    #end if
+    pieces = tuple(int(p) for p in pieces[:6])
+    result = calendar.timegm(pieces + (0, 0, -1)) - tzdelta
+    sys.stdout.write("%d\n" % result)
+#end cmd_parse_date
+
 recognized_commands = \
     {
 # key is command name, value is dictionary with following fields:
@@ -207,6 +283,38 @@ recognized_commands = \
                 "action" : cmd_showinfo,
                 "help_usage" : "«pdf file»",
                 "help_descr" : "shows metadata for the specified PDF file",
+            },
+
+        "getinfo" :
+            {
+                "args" : 2,
+                "opts" : ("default=",),
+                "action" : cmd_getinfo,
+                "help_usage" : "«pdf file» «keyword»",
+                "help_descr" :
+                    "retrieves the specified metadata value from the Info"
+                    " dictionary in the PDF file",
+            },
+
+        "format_date" :
+            {
+                "args" : 1,
+                "opts" : ("timezone=", "utc"),
+                "action" : cmd_format_date,
+                "help_usage" : "«utc-seconds»",
+                "help_descr" :
+                    "formats UTC seconds into a timestamp of the format D:YYYYmmddHHMMSS[±tzd]",
+            },
+
+        "parse_date" :
+            {
+                "args" : 1,
+                "opts" : (),
+                "action" : cmd_parse_date,
+                "help_usage" : "«date-time-string»",
+                "help_descr" :
+                    "parses a timestamp of the format D:YYYYmmddHHMMSS[±tzd],"
+                    " returning UTC seconds",
             },
 
     } # recognized_commands

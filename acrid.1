@@ -1,4 +1,4 @@
-.TH "ACRID" "1" "2021-06-02" "Geek Central" "PDF Hacks"
+.TH "ACRID" "1" "2021-08-11" "Geek Central" "PDF Hacks"
 
 .SH NAME
 acrid - examine/manipulate metadata in a PDF file.
@@ -108,6 +108,40 @@ in a single operation.
 Shows the current info from the specified PDF file, including a dump of the
 XMP data, if present.
 
+.TP
+\fBgetinfo\fR [\fB\-\-default=\fIdefault_value\fR] \fIin-pdf-file\fR \fIkeyword\fR
+Shows just the specified keyword entry from the Info dictionary. If the keyword
+is not present, then the \fIdefault_value\fR is shown, if specified; if no
+default is specified, an error is raised.
+
+.TP
+\fBparse_date\fR \fIdate_time\fR
+Parses a date-time string in the common \fBD:\fIYYmmddHHMMss[±tzd]\fR format
+(as for example found as the values of the \fBCreationDate\fR or \fBModDate\fR fields)
+returning a UTC seconds timestamp.
+
+.TP
+\fBformat_date \fIutc_seconds\fR
+Formats a UTC seconds timestamp into the common PDF form.
+Valid
+.I options
+are:
+
+.RS 4
+.TP
+\fB\-\-timezone=\fItimezone\fR
+specifies the local timezone for which to format the time.
+
+.TP
+\fB\-\-utc\fR
+specifies that the time is to be formatted as UTC, with a “Z” suffix
+in place of a timezone delta.
+
+.PP
+At most one of \fB\-\-timezone\fR or \fB\-\-utc\fR can be specified.
+If neither is specified, the local timezone is used.
+.RE
+
 .SH NOTES
 
 Requires the
@@ -115,6 +149,13 @@ Requires the
 pikepdf
 .UE
 toolkit.
+
+The \fBformat_date \-\-timezone=\fItimezone\fR feature only
+works in Python 3.9 or later, as the
+.UR https://docs.python.org/3/library/zoneinfo.html
+zoneinfo
+.UE
+module is not available in earlier Python versions.
 
 .SH BUGS
 
