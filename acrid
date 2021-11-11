@@ -159,7 +159,7 @@ def cmd_setinfo(args, opts) :
             #end if
         #end if
     #end for
-    if delxmp and hasattr(pdf.root, "Metadata") :
+    if delxmp and hasattr(pdf, "root") and hasattr(pdf.root, "Metadata") :
         del pdf.root.Metadata
     #end if
     pdf.save(args[1])
@@ -169,7 +169,7 @@ def cmd_showinfo(args, opts) :
     pdf = Pdf.open(args[0])
     sys.stdout.write(repr(pdf.docinfo))
     sys.stdout.write("\n")
-    if hasattr(pdf.root, "Metadata") :
+    if hasattr(pdf, "root") and hasattr(pdf.root, "Metadata") :
         sys.stdout.write(pdf.root.Metadata.read_bytes().decode())
         sys.stdout.write("\n")
     #end if
