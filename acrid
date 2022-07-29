@@ -192,10 +192,10 @@ def cmd_format_date(args, opts) :
     use_utc = "utc" in opts
     use_timezone = opts.get("timezone")
     if use_timezone != None and zoneinfo == None :
-        getopt.GetoptError("--timezone option not available on this Python version")
+        raise getopt.GetoptError("--timezone option not available on this Python version")
     #end if
     if use_timezone != None and use_utc :
-        getopt.GetoptError("can’t specify both --timezone and --utc")
+        raise getopt.GetoptError("can’t specify both --timezone and --utc")
     #end if
     if use_timezone != None :
         the_time = datetime.datetime.fromtimestamp \
